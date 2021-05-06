@@ -70,12 +70,12 @@ namespace ProgramAnalizator
                         }
                         
                         // добавление в список констант
-                        ConstantNotifay(myMethods, skobki, flagSkobkaMyMethods, paramNamber, temp + words[i]);
+                        ConstantNotifay(myMethods, skobki, flagSkobkaMyMethods, paramNamber, temp + words[i], methods);
                     }
                     else if (IsDigital(words[i]) || IsString(words[i])) // если это консанта
                     {
                         // добавление в список констант
-                        ConstantNotifay(myMethods, skobki, flagSkobkaMyMethods, paramNamber, words[i]);
+                        ConstantNotifay(myMethods, skobki, flagSkobkaMyMethods, paramNamber, words[i], methods);
                     }
                     else if (words[i] == "(")
                     {
@@ -173,20 +173,22 @@ namespace ProgramAnalizator
             }
         }
 
-        protected void ConstantNotifay(List<MethodCounter> myMethods, Stack<string> skobki, bool flagSkobkaMyMethods, Stack<int> paramNamber, string word)
+        protected void ConstantNotifay(List<MethodCounter> myMethods, Stack<string> skobki, bool flagSkobkaMyMethods, Stack<int> paramNamber, string word, Stack<MethodCounter> methods)
         {
             if (flagSkobkaMyMethods)
             {
-                var cont = MyMethodsContainThisMethod(skobki.Peek(), myMethods);
+                var temp = methods.Peek();
 
-                AddToConteiner(_constants, word, cont._operands[cont.Param[paramNamber.Peek()]]);
+                var name = temp.Param[paramNamber.Peek()];
 
                 paramNamber.Push(paramNamber.Pop() + 1);
+
+                AddToConteiner(_operators, "=");
+
+                AddToConteiner(_operands, (name + $"_{_writingSelfMethods[temp.MethodName]}_{paramNamber.Peek()}"), temp._operands[name] + 1);
             }
-            else
-            {
-                AddToConteiner(_constants, word);
-            }
+
+            AddToConteiner(_constants, word);
         }
 
         // анализ одной строки
