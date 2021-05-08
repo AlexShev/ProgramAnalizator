@@ -82,6 +82,8 @@ namespace ProgramAnalizator
                         skobki.Push(words[i]);
 
                         flagSkobkaMyMethods = false;
+
+                        AddToConteiner(_operators, words[i]);
                     }
                     else if (words[i] == ")")
                     {
@@ -127,6 +129,11 @@ namespace ProgramAnalizator
 
                         if (flagSkobkaMyMethods)
                         {
+                            if (MyMethodsContainThisMethod(skobki.Peek(), myMethods) == null)
+                            {
+                                AddToConteiner(_operators, ";", -1);
+                            }
+
                             AddToConteiner(_writingSelfMethods, words[i]);
 
                             methods.Push(MyMethodsContainThisMethod(words[i], myMethods));
@@ -186,6 +193,8 @@ namespace ProgramAnalizator
                 AddToConteiner(_operators, "=");
 
                 AddToConteiner(_operands, (name + $"_{_writingSelfMethods[temp.MethodName]}_{paramNamber.Peek()}"), temp._operands[name] + 1);
+
+                AddToConteiner(_operators, ";");
             }
 
             AddToConteiner(_constants, word);
