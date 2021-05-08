@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace ProgramAnalizator
@@ -10,8 +9,6 @@ namespace ProgramAnalizator
         // метод по анализу програмного кода из файла
         public double Analiz(string file)
         {
-            Inizializet();
-
             _myMethods = new();
 
             // открытие файла
@@ -22,72 +19,29 @@ namespace ProgramAnalizator
             while (!sr.ReadLine().Contains("Program")) { }
 
             // считывание строки
-            while ((line = sr.ReadLine()) != null && !line.Contains("Main("))
+            while ((line = sr.ReadLine()) != null /*&& !line.Contains("Main(")*/)
             {
                 //  если строка содержит метку подпрограммы
-                if (IsMathod(line) && !line.Contains("//"))
+                if (IsMathod(line) && !line.TrimStart().StartsWith("//"))
                 {
                     // счётчик по анализу для подпрограммы
                     MethodCounter caunter = new(sr, line, _myMethods);
 
                     // добавление найденрго метода в словарь для собственно разработанных методов
                     _myMethods.Add(caunter);
-
-                    caunter.Modificate(_myMethods);
                 }
-                else
-                {
-                    AnalizString(line, _myMethods);
-                }
-            }
-
-            while ((line = sr.ReadLine()) != null)
-            {
-                // анализ строки
-                AnalizString(line, _myMethods);
             }
 
             // закрытие файла
             sr.Close();
 
-            // цикл для прибавления того что храниться в подпрограммах
-            foreach (var method in _myMethods)
-            {
-                // сколько раз метод встречается в коде
-                int k = (_writingSelfMethods.ContainsKey(method.MethodName)) ? _writingSelfMethods[method.MethodName] : 0;
+            var temp = _myMethods[_myMethods.Count - 1];
 
-                if (k == 0)
-                {
-                    continue;
-                }
-
-                // проход по контейнеру операторов
-                foreach (var it in method._operators)
-                {
-                    AddToConteiner(_operators, it.Key, it.Value * k);
-                }
-                // проход по контейнеру операндов
-                foreach (var it in method._operands)
-                {
-                    if (!method.Param.Contains(it.Key))
-                    {
-                        AddToConteiner(_operands, it.Key, it.Value * k);
-                    }
-                }
-                // проход по контейнеру стандартных методов
-                foreach (var it in method._methods)
-                {
-                    AddToConteiner(_methods, it.Key, it.Value * k);
-                }
-                foreach (var it in method._constants)
-                {
-                    AddToConteiner(_constants, it.Key, it.Value * k);
-                }
-            }
+            AddToConteiner(temp._operators, "{", 3);
 
             // возврат результата
-            return СalculateVolume(SumDictionaryKey(_operators) + SumDictionaryKey(_methods),
-                SumDictionaryKey(_operands) + SumDictionaryKey(_constants), _operators.Count + _methods.Count, _operands.Count + _constants.Count);
+            return СalculateVolume(SumDictionaryKey(temp._operators) + SumDictionaryKey(temp._methods),
+                SumDictionaryKey(temp._operands) + SumDictionaryKey(temp._constants), temp._operators.Count + temp._methods.Count, temp._operands.Count + temp._constants.Count);
         }
 
         // подсчёт количества элементов в контейнере
